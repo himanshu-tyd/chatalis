@@ -3,8 +3,7 @@ import { upload } from "../assets";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
-import { RecaptchaVerifier,signInWithPhoneNumber} from "firebase/auth";
-import {auth} from "../utils/firebase.config.js";
+import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 import toast from "react-hot-toast";
 
 
@@ -15,22 +14,23 @@ const Home = () => {
   const [confirmationResult, setConfirmationResult] = useState(null);
   const location = useLocation();
   const navigate = useNavigate();
+  const auth1 = getAuth();
 
-
-  const onCaptchaVerify = () => {
+  const onCaptchaVerify = async () => {
     if (!window.recaptchaVerifier) {
-      window.recaptchaVerifier = new RecaptchaVerifier(auth,
+      window.recaptchaVerifier = new RecaptchaVerifier(
+        auth1,
         "recaptcha-container",
         {
           size: "invisible",
           callback: (response) => {
-            console.log("recaptcha verified");
+            console.log("reCAPTCHA verified");
             onSignup();
           },
           "expired-callback": () => {
-            toast.error("reCaptacha expired. please try again.");
+            toast.error("reCAPTCHA expired. Please try again.");
           },
-        }
+        },
       );
     }
   };
@@ -50,13 +50,13 @@ const Home = () => {
 
       // onCaptchaVerify();
       const formatPhone = `+${phone}`
-      // const appVerifier = window.recaptchaVerifier;
+      const appVerifier = window.recaptchaVerifier;
       // const confirmationResult = await signInWithPhoneNumber(
       //   auth,
       //   formatPhone,
       //   appVerifier
       // );
-      const confirmationResult = await signInWithPhoneNumber(auth, formatPhone, recaptchaVerifier)
+      const confirmationResult = await signInWithPhoneNumber(auth1, formatPhone, appVerifier)
       console.log(confirmationResult);
       if (confirmationResult) {
         setConfirmationResult(confirmationResult);
